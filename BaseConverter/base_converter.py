@@ -85,6 +85,27 @@ def round_to_10_fraction_digits(converted_num, target_base):
     return remove_unnecessary_zeros(converted_num)
 
 
+def convert_to_decimal(reversed_integer_digits, fractional_digits, source_base):
+    """Convert the source number to decimal using an integer part, numerator and denominator"""
+    integer_part = 0
+    final_numerator = 0
+
+    # Calculate the common denominator
+    common_denominator = source_base ** len(fractional_digits)
+
+    # Convert the integer part to decimal
+    for i in range(len(reversed_integer_digits)):
+        integer_part += int(reversed_integer_digits[i]) * source_base ** i
+
+    # Calculate the numerator of the fractional part
+    # using the common denominator
+    for j in range(len(fractional_digits)):
+        denominator = source_base ** (j + 1)
+        final_numerator += int(fractional_digits[j]) * (common_denominator // denominator)
+
+    return integer_part, final_numerator, common_denominator
+
+
 def convert_to_target_base(integer_part, numerator, denominator, target_base):
     """Convert the integer and fractional parts to the target base"""
     converted_integer = ""
@@ -117,27 +138,6 @@ def convert_to_target_base(integer_part, numerator, denominator, target_base):
     return remove_unnecessary_zeros(converted_num)
 
 
-def convert_to_decimal(reversed_integer_digits, fractional_digits, source_base, target_base):
-    """Convert the source number to decimal and then to the target base"""
-    integer_part = 0
-    final_numerator = 0
-
-    # Calculate the common denominator
-    common_denominator = source_base ** len(fractional_digits)
-
-    # Convert the integer part to decimal
-    for i in range(len(reversed_integer_digits)):
-        integer_part += int(reversed_integer_digits[i]) * source_base ** i
-
-    # Calculate the numerator of the fractional part
-    # using the common denominator
-    for j in range(len(fractional_digits)):
-        denominator = source_base ** (j + 1)
-        final_numerator += int(fractional_digits[j]) * (common_denominator // denominator)
-
-    return convert_to_target_base(integer_part, final_numerator, common_denominator, target_base)
-
-
 def main():
     """Manage the number conversion process"""
     num_to_convert, source_base, target_base = get_valid_input()
@@ -149,7 +149,13 @@ def main():
         reversed_integer_digits = number_parts[0][::-1]
         fractional_digits = number_parts[1]
 
-        result = convert_to_decimal(reversed_integer_digits, fractional_digits, source_base, target_base)
+        integer_part, numerator, denominator = convert_to_decimal(
+            reversed_integer_digits, fractional_digits, source_base
+        )
+
+        result = convert_to_target_base(
+            integer_part, numerator, denominator, target_base
+        )
 
     print(f"Result: {result}")
 
